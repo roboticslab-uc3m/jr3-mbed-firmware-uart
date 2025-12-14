@@ -29,7 +29,7 @@ struct serial_msg
 {
     uint16_t op;
     uint8_t data[14]; // make room for 6*2 bytes (6 uint16_t channels) + 2 bytes (frame counter)
-    int size;
+    unsigned int size;
 };
 
 uint16_t parseCutOffFrequency(const serial_msg & msg, size_t offset = 0)
