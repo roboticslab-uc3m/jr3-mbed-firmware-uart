@@ -20,7 +20,6 @@ class TrajectorySegment(Trajectory):
         self._path = path
         self._profile = profile
         self._profile.set_profile_duration(0, path.path_length(), duration)
-        # print(f"DEBUG: Initializing TrajectorySegment with duration: {duration}")
 
     def position(self, time):
         return self._path.position(self._profile.position(time))
@@ -53,13 +52,11 @@ class TrajectoryComposite(Trajectory):
 
         for i, traj in enumerate(self._trajectories):
             if time < self._end_times[i]:
-               #  print(f"DEBUG: Time {time} is less than end time {self._end_times[i]}. Selected segment {i}.")
                 return traj.position(time - previous_time)
 
             previous_time = self._end_times[i]
 
         last_traj = self._trajectories[-1]
-       # print(f"DEBUG: Time {time} exceeds total duration. Returning position at end time: {last_traj.duration()}")
         return last_traj.position(last_traj.duration())
 
     def velocity(self, time):
@@ -149,7 +146,9 @@ class PathCircle(Path):
         sin_angle = math.sin(angle)
 
         # Rotación en el plano XY alrededor del centro
-        p = self._H_base_center * kdl.Vector(self._radius_vector.x() * cos_angle - self._radius_vector.y() * sin_angle,self._radius_vector.x() * sin_angle + self._radius_vector.y() * cos_angle,self._radius_vector.z())
+        p = self._H_base_center * kdl.Vector(self._radius_vector.x() * cos_angle - self._radius_vector.y() * sin_angle,
+                                             self._radius_vector.x() * sin_angle + self._radius_vector.y() * cos_angle,
+                                             self._radius_vector.z())
 
         return kdl.Frame(p)
 
@@ -159,7 +158,9 @@ class PathCircle(Path):
         cos_angle = math.cos(angle)
         sin_angle = math.sin(angle)
 
-        return kdl.Twist(kdl.Vector(-self._radius * sin_angle * v,self._radius * cos_angle * v, 0 ),kdl.Vector.Zero() )
+        return kdl.Twist(kdl.Vector(-self._radius * sin_angle * v,
+                                    self._radius * cos_angle * v,
+                                    0), kdl.Vector.Zero())
 
     def acceleration(self, s, sd, sdd):
         angle = self._direction * s / self._radius
@@ -168,11 +169,12 @@ class PathCircle(Path):
         cos_angle = math.cos(angle)
         sin_angle = math.sin(angle)
 
-        return kdl.Twist(kdl.Vector(-self._radius * cos_angle * v * v - self._radius * sin_angle * a, -self._radius * sin_angle * v * v + self._radius * cos_angle * a,  0), kdl.Vector.Zero()  )
+        return kdl.Twist(kdl.Vector(-self._radius * cos_angle * v * v - self._radius * sin_angle * a,
+                                    -self._radius * sin_angle * v * v + self._radius * cos_angle * a,
+                                    0), kdl.Vector.Zero())
 
     def path_length(self):
         return self._pathlength
-
 
 class VelocityProfile(ABC):
     def position(self, time):
@@ -236,7 +238,6 @@ class VelocityProfileRectangular(VelocityProfile):
             self._velocity = 0
             self._position = pos1
             self._duration = 0
-       # print(f"DEBUG: Set profile - pos1: {pos1}, pos2: {pos2}, velocity: {self._velocity}, duration: {self._duration}")
 
     def set_profile_duration(self, pos1, pos2, duration):
         diff = pos2 - pos1
@@ -253,4 +254,3 @@ class VelocityProfileRectangular(VelocityProfile):
             self._velocity = 0
             self._position = pos1
             self._duration = 0
-        # print(f"DEBUG: Set profile duration - pos1: {pos1}, pos2: {pos2}, duration: {duration}, velocity: {self._velocity}, final duration: {self._duration}")

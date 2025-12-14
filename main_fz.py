@@ -83,7 +83,6 @@ traj6 = TrajectorySegment(path6, profile6, 1.0)
 traj7 = TrajectorySegment(path7, profile7, 2.0)
 traj8 = TrajectorySegment(path8, profile8, 1.0)
 
-
 def is_within_workspace(p):
     x_min, x_max = 400, 700
     y_min, y_max = -200, 200
@@ -119,7 +118,6 @@ axes.grid(True)
 
 (ln_fz,) = axes.plot(values[2], label='z', color='blue')
 
-
 plt.show(block=False)
 plt.pause(0.1)
 
@@ -129,6 +127,7 @@ fig.draw_artist(axes)
 
 # https://matplotlib.org/stable/users/explain/animations/blitting.html + https://stackoverflow.com/a/15724978
 fig.canvas.blit(fig.bbox)
+
 def do_draw():
     global should_stop
 
@@ -171,21 +170,27 @@ while True:
     while (time.perf_counter() - start) < traj.duration():
         now = time.perf_counter() - start
         res, feedback = egm.receive_from_robot(timeout=0.05)
+
         if res:
             H = traj.position(now)
             p = np.array([H.p.x(), H.p.y(), H.p.z()])
+
             if is_within_workspace(p):
                 success, forces, torques, _ = jr3.read()
+
                 if success:
                     p[2] += forces[2] * 10
+
                     last_value[0] = forces[0]
                     last_value[1] = forces[1]
                     last_value[2] = forces[2]
                     limits[0] = (min([limits[0][0]] + last_value[0:3]), max([limits[0][1]] + last_value[0:3]))
+
                     last_value[3] = torques[0]
                     last_value[4] = torques[1]
                     last_value[5] = torques[2]
                     limits[1] = (min([limits[1][0]] + last_value[3:6]), max([limits[1][1]] + last_value[3:6]))
+
                 egm.send_to_robot_cart(p, [0, 0, 1, 0])
             else:
                 print(f"Posición fuera del área de trabajo: {p}")
