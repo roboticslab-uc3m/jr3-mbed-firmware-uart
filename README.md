@@ -2,7 +2,11 @@
 
 An Arm Mbed OS 6 application that performs data acquisition from a JR3 force-torque sensor and streams it through a USB channel.
 
-Refer to [roboticslab-uc3m/jr3-mbed-firmware](https://github.com/roboticslab-uc3m/jr3-mbed-firmware/) for the underlying board-sensor communication. This repository focuses on the serial (USB) interface layer with an external PC. Refer to [roboticslab-uc3m/jr3-mbed-firmware-can](https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can/) for the CANT interface variant.
+Refer to [roboticslab-uc3m/jr3-mbed-firmware](https://github.com/roboticslab-uc3m/jr3-mbed-firmware/) for the underlying board-sensor communication. This repository focuses on the serial (USB) interface layer with an external PC. Refer to [roboticslab-uc3m/jr3-mbed-firmware-can](https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can/) for the CAN interface variant.
+
+## Installation
+
+Since the Mbed Online Compiler has been discontinued and the Keil web compiler will be shut down on July 2026, the preferred method is to use the [Mbed CE (Community Edition)](https://mbed-ce.dev/) CMake-based build system. Once built, plug in the Mbed to a USB port of your PC and drag-and-drop the downloaded .bin file into it.
 
 ## Communication Protocol
 
@@ -79,7 +83,7 @@ Below is a brief explanation of the operation code (opcode) for each message:
 
 ### Design Considerations
 
-This protocol design was inspired by the CAN protocol from Bartosz Piotr Lukawski. Unlike CAN, which divides force and moment data into two separate commands due to byte limitations, BufferedSerial has 14 bytes available, allowing both force and moment data to be sent in a single message. This design simplifies communication and ensures coherence between force and moment readings.
+This protocol design was inspired by the [CAN protocol implementation](https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can) from Bartosz Piotr Lukawski. Unlike CAN, which divides force and moment data into two separate commands due to byte limitations, BufferedSerial has 14 bytes available, allowing both force and moment data to be sent in a single message. This design simplifies communication and ensures coherence between force and moment readings.
 
 The frame counter is retained from the CAN protocol and helps ensure consistency in force and moment readings. While not strictly necessary in BufferedSerial due to the larger byte capacity, the frame counter can still be useful for verifying communication integrity and performance analysis.
 
@@ -106,7 +110,11 @@ This project aims to integrate a JR3 force-torque sensor with an ABB robot to mo
 
 The project is motivated by the need to modify the trajectories of GoFa cobots in the Carlos III University lab using an external controller. The ABB RobotStudio simulator is used to verify this functionality with a connected JR3 sensor and an Mbed LPC1768 microcontroller.
 
-In this github you can access the python script (`main_fz.py`) used to communicate with the Mbed, using libraries `JR3Manager.py` (for sensor data) and `motion_3.py` (based on KDL), which are also available in this github.
+The following Python scripts have been bundled with this repository:
+
+- [`main_fz.py`](scripts/main_fz.py): high-level motion application
+- [`JR3Manager.py`](scripts/JR3Manager.py): library for interfacing with the Mbed through serial bus
+- [`motion_3.py`](scripts/motion_3.py): KLD-based trajectory generation library
 
 ## Citation
 
@@ -125,7 +133,7 @@ Alba Olano Díaz, *Integración de un sensor fuerza-par en un robot industrial A
 
 ## See also
 
-- <https://github.com/roboticslab-uc3m/jr3-mbed-firmware/>
-- <https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can/>
-- <https://github.com/roboticslab-uc3m/yarp-devices/issues/263>
-- <https://github.com/roboticslab-uc3m/jr3pci-linux/>
+- [roboticslab-uc3m/yarp-devices#263](https://github.com/roboticslab-uc3m/yarp-devices/issues/263)
+- [roboticslab-uc3m/jr3-mbed-firmware](https://github.com/roboticslab-uc3m/jr3-mbed-firmware)
+- [roboticslab-uc3m/jr3-mbed-firmware-can](https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can)
+- [roboticslab-uc3m/jr3pci-linux](https://github.com/roboticslab-uc3m/jr3pci-linux)
