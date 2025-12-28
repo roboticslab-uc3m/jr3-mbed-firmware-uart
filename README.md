@@ -1,8 +1,8 @@
-# JR3 Mbed firmware (USB interface)
+# JR3 Mbed firmware (UART interface)
 
-An Arm Mbed OS 6 application that performs data acquisition from a JR3 force-torque sensor and streams it through a USB channel.
+An Arm Mbed OS 6 application that performs data acquisition from a JR3 force-torque sensor and streams it through a UART channel.
 
-Refer to [roboticslab-uc3m/jr3-mbed-firmware](https://github.com/roboticslab-uc3m/jr3-mbed-firmware/) for the underlying board-sensor communication. This repository focuses on the serial (USB) interface layer with an external PC. Refer to [roboticslab-uc3m/jr3-mbed-firmware-can](https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can/) for the CAN interface variant.
+Refer to [roboticslab-uc3m/jr3-mbed-firmware](https://github.com/roboticslab-uc3m/jr3-mbed-firmware/) for the underlying board-sensor communication. This repository focuses on the serial (UART) interface layer with an external PC. Refer to [roboticslab-uc3m/jr3-mbed-firmware-can](https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can/) for the CAN interface variant.
 
 ## Installation
 
