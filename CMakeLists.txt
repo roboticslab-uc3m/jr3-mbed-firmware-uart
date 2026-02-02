@@ -5,7 +5,7 @@ set(MBED_APP_JSON_PATH mbed_app.json5)
 
 include(mbed-os/tools/cmake/mbed_toolchain_setup.cmake)
 
-project(jr3-mbed-firmware-usb
+project(jr3-mbed-firmware-uart
         LANGUAGES C CXX ASM)
 
 include(mbed_project_setup)
