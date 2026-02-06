@@ -38,7 +38,7 @@ The following table outlines the different messages in the protocol:
 
 | **Message Name**       | **Function**                             | **Op Code** | **Direction** | **Payload (Bytes)** | **Details** |
 |------------------------|------------------------------------------|-------------|---------------|---------------------|-------------|
-| `JR3_ACK`              | Acknowledge                              | `<01>`      | Outgoing      | 1-7                 | Status of sensor: \n 0x00 - Sensor ready \n 0x01 - Sensor not initialized |
+| `JR3_ACK`              | Acknowledge                              | `<01>`      | Outgoing      | 1-7                 | Status: 0x00 (ready), 0x01 (not initialized) |
 | **`JR3_START`**        | Start (Asynchronous)                     | `<02>`      | Incoming      | 6                   | 2 bytes for cutoff frequency, 4 bytes for acquisition loop period (in 0.01 Hz) |
 | **`JR3_STOP`**         | Stop                                     | `<03>`      | Incoming      | 0                   | -           |
 | **`JR3_ZERO_OFFS`**    | Zero offsets                             | `<04>`      | Incoming      | 0                   | -           |
