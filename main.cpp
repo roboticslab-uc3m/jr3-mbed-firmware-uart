@@ -142,7 +142,16 @@ int main()
 {
     rtos::ThisThread::sleep_for(5s);
 
-    printf("booting\n");
+    mbed::DigitalOut led_initialized(LED4, 0);
+    mbed::DigitalOut led_running(LED3, 0);
+
+    printf("booting (start)\n");
+
+    for (int i = 1; i <= 5; i++)
+    {
+        rtos::ThisThread::sleep_for(1s);
+        printf("booting %d/5\n", i);
+    }
 
     mbed::BufferedSerial serial(USBTX, USBRX);
     serial.set_baud(MBED_CONF_APP_SERIAL_BAUDRATE);
@@ -160,6 +169,7 @@ int main()
         printf("JR3 sensor is connected\n");
         controller.initialize(); // this blocks until the initialization is completed
         sendMessage(serial, {JR3_BOOTUP, {}, 0}, buffer_out);
+        led_initialized = 1;
     }
     else
     {
@@ -185,11 +195,13 @@ int main()
                 memcpy(msg_data.data, data, sizeof(msg_data.data));
                 sendMessage(serial, msg_data, buffer_out);
             }, parseCutOffFrequency(msg_in), parseAsyncPeriod(msg_in, sizeof(uint16_t)));
+            led_running = 1;
             sendAcknowledge(serial, buffer_out, controller);
             break;
         case JR3_STOP:
             printf("received JR3 stop command\n");
             controller.stop();
+            led_running = 0;
             sendAcknowledge(serial, buffer_out, controller);
             break;
         case JR3_ZERO_OFFS:
@@ -213,7 +225,9 @@ int main()
             break;
         case JR3_RESET:
             printf("received JR3 reset command\n");
+            led_initialized = 0;
             controller.initialize();
+            led_initialized = 1;
             sendAcknowledge(serial, buffer_out, controller);
             break;
         default:
