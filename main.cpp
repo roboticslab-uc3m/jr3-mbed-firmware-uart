@@ -95,7 +95,7 @@ void readMessage(const char * buffer, serial_msg & msg)
     }
 }
 
-void sendMessage(mbed::BufferedSerial & serial, const serial_msg & msg, char * buffer)
+void sendMessage(mbed::BufferedSerial & serial, const serial_msg & msg, char * buffer, rtos::Mutex & mutex)
 {
     static constexpr auto OFFSET = 4; // <> + 2 chars for op
 
@@ -107,26 +107,30 @@ void sendMessage(mbed::BufferedSerial & serial, const serial_msg & msg, char * b
     }
 
     sprintf(buffer + 3 + msg.size, ">");
+
+    mutex.lock();
     serial.write(buffer, msg.size + OFFSET);
+    mutex.unlock();
 }
 
-void sendFullScales(mbed::BufferedSerial & serial, char * buffer, const Jr3Controller & controller, uint16_t * data)
+void sendFullScales(mbed::BufferedSerial & serial, char * buffer, const Jr3Controller & controller, uint16_t * data, rtos::Mutex & mutex)
 {
     uint8_t state = controller.getState() == Jr3Controller::READY ? JR3_READY : JR3_NOT_INITIALIZED;
     serial_msg msg {JR3_ACK, {state}, 13};
     memcpy(msg.data + 1, data, 12); // fsx, fsy, fsz, msx, msy, msz [uint16_t]
-    sendMessage(serial, msg, buffer);
+    sendMessage(serial, msg, buffer, mutex);
 }
 
-void sendAcknowledge(mbed::BufferedSerial & serial, char * buffer, const Jr3Controller & controller)
+void sendAcknowledge(mbed::BufferedSerial & serial, char * buffer, const Jr3Controller & controller, rtos::Mutex & mutex)
 {
     uint8_t state = controller.getState() == Jr3Controller::READY ? JR3_READY : JR3_NOT_INITIALIZED;
     serial_msg msg {JR3_ACK, {state}, 1};
-    sendMessage(serial, msg, buffer);
+    sendMessage(serial, msg, buffer, mutex);
 }
 
 int main()
 {
+    rtos::Mutex mutex;
     rtos::ThisThread::sleep_for(5s);
 
     mbed::DigitalOut led_initialized(LED4, 0);
@@ -155,7 +159,7 @@ int main()
     {
         printf("JR3 sensor is connected\n");
         controller.initialize(); // this blocks until the initialization is completed
-        sendMessage(serial, {JR3_BOOTUP, {}, 0}, buffer_out);
+        sendMessage(serial, {JR3_BOOTUP, {}, 0}, buffer_out, mutex);
         led_initialized = 1;
     }
     else
@@ -167,7 +171,6 @@ int main()
     int size;
 
     serial_msg msg_in;
-    serial_msg msg_data {JR3_READ, {}, 14};
 
     while ((size = serial.read(buffer_in, MBED_CONF_APP_SERIAL_BUFFER_IN_SIZE)) > 0)
     {
@@ -177,45 +180,47 @@ int main()
         {
         case JR3_START:
             printf("received JR3 start command (asynchronous)\n");
-            controller.startAsync([&serial, &msg_data, &buffer_out](uint16_t * data)
+            controller.startAsync([&serial, &buffer_out, &mutex](uint16_t * data)
             {
+                // cannot have more than three lambda params, hence defining msg_data inside
+                serial_msg msg_data {JR3_READ, {}, 14};
                 memcpy(msg_data.data, data, sizeof(msg_data.data));
-                sendMessage(serial, msg_data, buffer_out);
+                sendMessage(serial, msg_data, buffer_out, mutex);
             }, parseCutOffFrequency(msg_in), parseAsyncPeriod(msg_in, sizeof(uint16_t)));
             led_running = 1;
-            sendAcknowledge(serial, buffer_out, controller);
+            sendAcknowledge(serial, buffer_out, controller, mutex);
             break;
         case JR3_STOP:
             printf("received JR3 stop command\n");
             controller.stop();
             led_running = 0;
-            sendAcknowledge(serial, buffer_out, controller);
+            sendAcknowledge(serial, buffer_out, controller, mutex);
             break;
         case JR3_ZERO_OFFS:
             printf("received JR3 zero offsets command\n");
             controller.calibrate();
-            sendAcknowledge(serial, buffer_out, controller);
+            sendAcknowledge(serial, buffer_out, controller, mutex);
             break;
         case JR3_SET_FILTER:
             printf("received JR3 set filter command\n");
             controller.setFilter(parseCutOffFrequency(msg_in));
-            sendAcknowledge(serial, buffer_out, controller);
+            sendAcknowledge(serial, buffer_out, controller, mutex);
             break;
         case JR3_GET_STATE:
             printf("received JR3 get state command\n");
-            sendAcknowledge(serial, buffer_out, controller);
+            sendAcknowledge(serial, buffer_out, controller, mutex);
             break;
         case JR3_GET_FS:
             printf("received JR3 get full scales (forces) command\n");
             controller.getFullScales(fs_data);
-            sendFullScales(serial, buffer_out, controller , fs_data);
+            sendFullScales(serial, buffer_out, controller , fs_data, mutex);
             break;
         case JR3_RESET:
             printf("received JR3 reset command\n");
             led_initialized = 0;
             controller.initialize();
             led_initialized = 1;
-            sendAcknowledge(serial, buffer_out, controller);
+            sendAcknowledge(serial, buffer_out, controller, mutex);
             break;
         default:
             printf("unsupported command: %d\n", msg_in.op);
