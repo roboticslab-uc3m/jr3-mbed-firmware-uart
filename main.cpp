@@ -3,8 +3,6 @@
 #include "jr3/Jr3.hpp"
 #include "jr3/Jr3Controller.hpp"
 
-constexpr auto OFFSET = 4;
-
 enum serial_ops : uint16_t
 {
     JR3_ACK = 1,
@@ -97,8 +95,10 @@ void readMessage(const char * buffer, serial_msg & msg)
     }
 }
 
-int buildMessage(const serial_msg & msg, char * buffer)
+void sendMessage(mbed::BufferedSerial & serial, const serial_msg & msg, char * buffer)
 {
+    static constexpr auto OFFSET = 4; // <> + 2 chars for op
+
     sprintf(buffer, "<%02d", msg.op);
 
     if (msg.size > 0)
@@ -107,20 +107,7 @@ int buildMessage(const serial_msg & msg, char * buffer)
     }
 
     sprintf(buffer + 3 + msg.size, ">");
-    return msg.size + OFFSET;
-}
-
-void sendData(mbed::BufferedSerial & serial, char * buffer, uint16_t * data)
-{
-    memcpy(buffer, data, 12);
-    memcpy(buffer + 12, data + 12, sizeof(uint16_t)); // frame_counter
-    serial.write(buffer, 14);
-}
-
-void sendMessage(mbed::BufferedSerial & serial, const serial_msg & msg, char * buffer)
-{
-    int size = buildMessage(msg, buffer);
-    serial.write(buffer, size);
+    serial.write(buffer, msg.size + OFFSET);
 }
 
 void sendFullScales(mbed::BufferedSerial & serial, char * buffer, const Jr3Controller & controller, uint16_t * data)
