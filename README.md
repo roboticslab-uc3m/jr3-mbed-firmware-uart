@@ -108,13 +108,9 @@ See [mbed-app.json5](mbed_app.json5) for a list of configurable parameters and t
 
 This project aims to integrate a JR3 force-torque sensor with an ABB robot to modify its tool's trajectory along the Z-axis when encountering an object. The goal is to control the ABB robot externally using the **Externally Guided Motion (EGM)** feature, which allows real-time path correction.
 
-The project is motivated by the need to modify the trajectories of GoFa cobots in the Carlos III University lab using an external controller. The ABB RobotStudio simulator is used to verify this functionality with a connected JR3 sensor and an Mbed LPC1768 microcontroller.
+The project is motivated by the need to modify the trajectories of GoFa cobots in the RoboticsLab research team from Universidad Carlos III de Madrid using an external controller. The ABB RobotStudio simulator is used to verify this functionality with a connected JR3 sensor and an Mbed LPC1768 microcontroller.
 
-The following Python scripts have been bundled with this repository:
-
-- [`main_fz.py`](scripts/main_fz.py): high-level motion application
-- [`JR3Manager.py`](scripts/JR3Manager.py): library for interfacing with the Mbed through serial bus
-- [`motion_3.py`](scripts/motion_3.py): KLD-based trajectory generation library
+A Python-based ROS 2 driver has been developed to interface with the Mbed from an external source through serial communications. Refer to [roboticslab-uc3m/jr3-driver](https://github.com/roboticslab-uc3m/jr3-driver) for more details.
 
 ## Citation
 
@@ -136,4 +132,5 @@ Alba Olano Díaz, *Integración de un sensor fuerza-par en un robot industrial A
 - [roboticslab-uc3m/yarp-devices#263](https://github.com/roboticslab-uc3m/yarp-devices/issues/263)
 - [roboticslab-uc3m/jr3-mbed-firmware](https://github.com/roboticslab-uc3m/jr3-mbed-firmware)
 - [roboticslab-uc3m/jr3-mbed-firmware-can](https://github.com/roboticslab-uc3m/jr3-mbed-firmware-can)
+- [roboticslab-uc3m/jr3-driver](https://github.com/roboticslab-uc3m/jr3-driver)
 - [roboticslab-uc3m/jr3pci-linux](https://github.com/roboticslab-uc3m/jr3pci-linux)
