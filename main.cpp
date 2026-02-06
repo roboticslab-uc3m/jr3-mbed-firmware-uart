@@ -130,11 +130,11 @@ void sendAcknowledge(mbed::BufferedSerial & serial, char * buffer, const Jr3Cont
 
 int main()
 {
-    rtos::Mutex mutex;
-    rtos::ThisThread::sleep_for(5s);
-
     mbed::DigitalOut led_initialized(LED4, 0);
     mbed::DigitalOut led_running(LED3, 0);
+
+    rtos::Mutex mutex;
+    rtos::ThisThread::sleep_for(5s);
 
     printf("booting (start)\n");
 
