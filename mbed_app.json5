@@ -12,6 +12,14 @@
             "help": "data pin (F/T sensor)",
             "required": true
         },
+        "serial-rx-pin": {
+            "help": "serial port RX pin",
+            "required": true
+        },
+        "serial-tx-pin": {
+            "help": "serial port TX pin",
+            "required": true
+        },
         "serial-baudrate": {
             "help": "serial port baudrate",
             "required": true
@@ -35,6 +43,8 @@
             "app.jr3-port": "Port0",
             "app.jr3-clock-pin": "p9",
             "app.jr3-data-pin": "p10",
+            "app.serial-rx-pin": "CONSOLE_RX",
+            "app.serial-tx-pin": "CONSOLE_TX",
             "app.serial-baudrate": 115200,
             "app.serial-buffer-in-size": 32,
             "app.serial-buffer-out-size": 16

@@ -134,9 +134,6 @@ int main()
     mbed::DigitalOut led_running(LED3, 0);
 
     rtos::Mutex mutex;
-    rtos::ThisThread::sleep_for(5s);
-
-    printf("booting (start)\n");
 
     for (int i = 1; i <= 5; i++)
     {
@@ -144,7 +141,7 @@ int main()
         printf("booting %d/5\n", i);
     }
 
-    mbed::BufferedSerial serial(USBTX, USBRX);
+    mbed::BufferedSerial serial(MBED_CONF_APP_SERIAL_TX_PIN, MBED_CONF_APP_SERIAL_RX_PIN);
     serial.set_baud(MBED_CONF_APP_SERIAL_BAUDRATE);
     // serial.set_format(8, mbed::BufferedSerial::None, 1); // default
 
